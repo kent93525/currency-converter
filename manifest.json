@@ -1,25 +1,33 @@
 {
   "name": "金額計算器",
   "short_name": "金額計算",
-  "description": "貨幣轉換與計算工具",
-  "id": "com.currency.converter",
+  "description": "簡單好用的貨幣轉換與計算工具，支援多種貨幣即時匯率查詢",
+  "id": "com.currency.converter.app",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4a90e2",
+  "background_color": "#FFFFFF",
+  "theme_color": "#4A90E2",
   "orientation": "portrait",
   "dir": "ltr",
   "lang": "zh-TW",
   "scope": "./",
   "categories": ["finance", "utilities"],
   "launch_handler": {
-    "client_mode": "navigate-existing"
+    "client_mode": "navigate-existing",
+    "route_to": "existing-client-navigate"
   },
   "screenshots": [
     {
       "src": "screenshot1.png",
       "sizes": "1280x720",
-      "type": "image/png"
+      "type": "image/png",
+      "label": "主畫面"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "匯率查詢"
     }
   ],
   "icons": [

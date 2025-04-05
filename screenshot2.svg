@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="720" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="100%" height="100%" fill="#FFFFFF"/>
+  
+  <!-- 標題 -->
+  <text x="640" y="100" font-family="Arial" font-size="48" text-anchor="middle" fill="#333333">即時匯率查詢</text>
+  
+  <!-- 匯率表格 -->
+  <rect x="240" y="200" width="800" height="400" rx="20" fill="#F5F5F5" stroke="#E0E0E0" stroke-width="2"/>
+  
+  <!-- 表格標題 -->
+  <text x="280" y="250" font-family="Arial" font-size="24" fill="#333333">貨幣</text>
+  <text x="480" y="250" font-family="Arial" font-size="24" fill="#333333">匯率</text>
+  <text x="680" y="250" font-family="Arial" font-size="24" fill="#333333">更新時間</text>
+  
+  <!-- 匯率資料 -->
+  <text x="280" y="300" font-family="Arial" font-size="20" fill="#666666">USD/TWD</text>
+  <text x="480" y="300" font-family="Arial" font-size="20" fill="#666666">31.2345</text>
+  <text x="680" y="300" font-family="Arial" font-size="20" fill="#666666">2024-03-20 15:30</text>
+  
+  <text x="280" y="350" font-family="Arial" font-size="20" fill="#666666">EUR/TWD</text>
+  <text x="480" y="350" font-family="Arial" font-size="20" fill="#666666">33.9876</text>
+  <text x="680" y="350" font-family="Arial" font-size="20" fill="#666666">2024-03-20 15:30</text>
+  
+  <text x="280" y="400" font-family="Arial" font-size="20" fill="#666666">JPY/TWD</text>
+  <text x="480" y="400" font-family="Arial" font-size="20" fill="#666666">0.2087</text>
+  <text x="680" y="400" font-family="Arial" font-size="20" fill="#666666">2024-03-20 15:30</text>
+  
+  <!-- 更新按鈕 -->
+  <rect x="440" y="500" width="400" height="60" rx="10" fill="#4A90E2"/>
+  <text x="640" y="540" font-family="Arial" font-size="24" text-anchor="middle" fill="#FFFFFF">更新匯率</text>
+</svg> 
