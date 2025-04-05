@@ -1,12 +1,27 @@
 {
-  "name": "貨幣轉換器",
-  "short_name": "貨幣轉換",
-  "description": "簡單好用的貨幣轉換與計算工具",
+  "name": "金額計算器",
+  "short_name": "金額計算",
+  "description": "貨幣轉換與計算工具",
+  "id": "com.currency.converter",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4a90e2",
   "orientation": "portrait",
+  "dir": "ltr",
+  "lang": "zh-TW",
+  "scope": "./",
+  "categories": ["finance", "utilities"],
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ],
   "icons": [
     {
       "src": "icon-192x192.png",
@@ -20,5 +35,6 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ]
+  ],
+  "prefer_related_applications": false
 } 
