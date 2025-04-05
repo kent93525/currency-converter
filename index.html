@@ -1,0 +1,1171 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="貨幣轉換與計算工具">
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="currency_converter.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/3.5.0/css/flag-icon.min.css">
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192x192.png">
+  <link rel="apple-touch-icon" href="icon-192x192.png">
+  <title>商品價格換算器</title>
+  <script>
+    // 註冊 Service Worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => {
+            console.log('ServiceWorker registration successful');
+          })
+          .catch(err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+  </script>
+</head>
+<body>
+  <div class="main-container">
+    <div class="left-container">
+      <div class="tab-container">
+        <button class="tab-button active" onclick="switchTab('converter')">貨幣轉換器</button>
+        <button class="tab-button" onclick="switchTab('settings')">貨幣設定</button>
+      </div>
+
+      <div id="converter" class="tab-content active">
+        <div class="currency-form-group">
+          <!-- 隱藏的原始select元素 -->
+          <select class="currency-form-select hidden" id="fromCurrency" title="選擇來源貨幣">
+            <option value="TWD">新台幣 (TWD)</option>
+          </select>
+          
+          <!-- 自訂下拉選單 -->
+          <div class="custom-select-container">
+            <div id="fromCurrencySelected" class="custom-select-selected">
+              <span>請選擇貨幣</span>
+            </div>
+            <div id="fromCurrencyOptions" class="custom-select-options"></div>
+          </div>
+          
+          <input type="number" class="currency-form-input" id="amount" placeholder="輸入金額">
+          <button class="currency-calculate-button" onclick="calculate()">轉換成台幣</button>
+        </div>
+        <div class="currency-result-container" id="currencyResult"></div>
+      </div>
+
+      <div id="settings" class="tab-content">
+        <div class="currency-management-container">
+          <h3>匯率管理</h3>
+          
+          <form id="editRateForm" class="currency-form">
+            <div class="currency-form-group">
+              <label for="editCurrency">選擇貨幣：</label>
+              
+              <!-- 隱藏的原始select元素 -->
+              <select id="editCurrency" class="currency-form-select hidden">
+                <option value="">請選擇貨幣</option>
+                <option value="new">+ 新增貨幣...</option>
+              </select>
+              
+              <!-- 自訂下拉選單 -->
+              <div class="custom-select-container">
+                <div id="editCurrencySelected" class="custom-select-selected">
+                  <span>請選擇貨幣</span>
+                </div>
+                <div id="editCurrencyOptions" class="custom-select-options">
+                  <div class="custom-select-option" data-value="">
+                    <span>請選擇貨幣</span>
+                  </div>
+                  <div class="custom-select-option" data-value="new">
+                    <span class="currency-icon"><i class="fas fa-plus-circle"></i></span>
+                    <span>新增貨幣...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div id="newCurrencyInputs" class="currency-new-inputs hidden">
+              <div class="currency-form-group">
+                <label for="customCode">貨幣代碼：</label>
+                <input type="text" id="customCode" class="currency-form-input" placeholder="USD" maxlength="5">
+              </div>
+              <div class="currency-form-group">
+                <label for="customName">貨幣名稱：</label>
+                <input type="text" id="customName" class="currency-form-input" placeholder="美元">
+              </div>
+            </div>
+            
+            <div class="currency-form-group">
+              <label for="editRate">匯率 (1單位=多少台幣)：</label>
+              <input type="number" id="editRate" class="currency-form-input" step="0.0001" min="0">
+            </div>
+            
+            <div class="currency-form-actions">
+              <button type="button" id="saveCurrencyBtn" class="currency-primary-button">修改匯率</button>
+              <button type="button" id="deleteCurrencyBtn" class="currency-danger-button hidden">刪除貨幣</button>
+            </div>
+          </form>
+        </div>
+        <div class="currency-table-container">
+          <table class="currency-table">
+            <caption class="currency-table-caption">已設定貨幣列表</caption>
+            <thead>
+              <tr>
+                <th>貨幣</th>
+                <th>匯率</th>
+                <th>設定時間</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody id="currencyList"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-container">
+      <div class="currency-live-rates-container">
+        <h2 class="currency-live-rates-title"> 📦商品售價計算器</h2>
+        <div id="price-calculator" class="calculator-content">
+          <div class="platform-select-container">
+            <label>銷售平台：</label>
+            <select id="platform" onchange="toggleShopeeOptions()" class="currency-form-select" aria-label="選擇銷售平台">
+              <option value="normal">一般銷售</option>
+              <option value="shopee">蝦皮</option>
+            </select>
+          </div>
+
+          <div id="shopeeOptions" class="shopee-options hidden">
+            <label class="shopee-option-label"><input type="checkbox" id="transactionFee" checked disabled> 成交手續費 (5.5%)</label>
+            <label class="shopee-option-label"><input type="checkbox" id="coinReward" onchange="handleCoinRewardChange(this)"> 蝦幣回饋專案 (3%)</label>
+            <label class="shopee-option-label"><input type="checkbox" id="coinReward15" onchange="handleCoinRewardChange(this)"> 蝦幣回饋專案 (1.5%)</label>
+            <label class="shopee-option-label"><input type="checkbox" id="freeShipping"> 免運補貼專案 (7%)</label>
+            <label class="shopee-option-label"><input type="checkbox" id="processingFee" checked disabled> 金流與系統處理費 (2%)</label>
+          </div>
+
+          <div class="currency-form-group">
+            <label>商品售價（含稅）：</label>
+            <input type="number" id="price" placeholder="例如：1000" class="currency-form-input">
+          </div>
+
+          <div class="currency-form-group">
+            <label>進貨成本：</label>
+            <input type="number" id="cost" placeholder="例如：800" class="currency-form-input">
+          </div>
+
+          <div class="currency-form-group">
+            <label>目標稅後淨利率（%）：</label>
+            <input type="number" id="targetProfitPercent" placeholder="例如：10" class="currency-form-input">
+          </div>
+
+          <button onclick="calculateAll()" class="currency-calculate-button">計算</button>
+
+          <div id="priceResult" class="currency-result-container"></div>
+        </div>
+      </div>
+
+      <div class="currency-live-rates-container">
+        <h2 class="currency-live-rates-title">💱即時匯率</h2>
+        <div class="currency-coverage-info">
+          即時匯率更新成功率: <span id="coverageRate">0%</span>
+        </div>
+        <div class="currency-rate-header">
+          <div class="currency-info-header">貨幣</div>
+          <div class="currency-rate-info-header">
+            <div class="currency-live-rate-header">即時</div>
+            <div class="currency-set-rate-header">設定</div>
+            <div class="currency-rate-time-header">更新</div>
+          </div>
+        </div>
+        <ul class="currency-live-rates-list" id="liveRates"></ul>
+        <div class="currency-update-time" id="updateTime"></div>
+        <button class="currency-refresh-button" onclick="updateLiveRates()">更新匯率</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 初始化貨幣列表
+    let currencies = JSON.parse(localStorage.getItem('currencies')) || {
+      'TWD': { name: '新台幣', rate: 1, time: new Date().toISOString() },
+      'USD': { name: '美元', rate: 0.033, time: new Date().toISOString() },
+      'JPY': { name: '日圓', rate: 3.7, time: new Date().toISOString() },
+      'EUR': { name: '歐元', rate: 0.03, time: new Date().toISOString() }
+    };
+
+    // 預設可添加的貨幣列表
+    const AVAILABLE_CURRENCIES = {
+      'USD': '美元',
+      'JPY': '日圓',
+      'EUR': '歐元',
+      'GBP': '英鎊',
+      'CNY': '人民幣',
+      'KRW': '韓元',
+      'AUD': '澳幣',
+      'CAD': '加幣',
+      'SGD': '新加坡幣',
+      'HKD': '港幣',
+      'BTC': '比特幣',
+      'ETH': '以太幣',
+      'USDT': '泰達幣',
+      'BNB': '幣安幣',
+      'SOL': '索拉納',
+      'XRP': '瑞波幣',
+      'ADA': '艾達幣',
+      'DOGE': '狗狗幣'
+    };
+
+    // API 來源設定
+    const API_SOURCES = {
+      EXCHANGERATE_API: {
+        name: 'ExchangeRate-API',
+        url: (code) => `https://open.er-api.com/v6/latest/${code}`,
+        parse: (data) => ({
+          rate: data.rates['TWD'],
+          time: data.time_last_update_utc,
+          source: 'ExchangeRate-API'
+        })
+      },
+      COINGECKO: {
+        name: 'CoinGecko',
+        url: (code) => `https://api.coingecko.com/api/v3/simple/price?ids=${CRYPTO_CURRENCIES[code]}&vs_currencies=twd`,
+        parse: (data, code) => ({
+          rate: data[CRYPTO_CURRENCIES[code]].twd,
+          time: new Date().toISOString(),
+          source: 'CoinGecko'
+        })
+      },
+      BINANCE: {
+        name: 'Binance',
+        url: (code) => `https://api.binance.com/api/v3/ticker/price?symbol=${code}USDT`,
+        parse: async (data) => {
+          // 獲取 USDT/TWD 匯率
+          const usdtResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=tether&vs_currencies=twd');
+          const usdtData = await usdtResponse.json();
+          if (usdtData.tether && usdtData.tether.twd) {
+            const rate = parseFloat(data.price) * usdtData.tether.twd;
+            return {
+              rate: rate,
+              time: new Date().toISOString(),
+              source: 'Binance + CoinGecko'
+            };
+          }
+          return null;
+        }
+      }
+    };
+
+    // 加密貨幣列表與對應的 CoinGecko ID
+    const CRYPTO_CURRENCIES = {
+      'BTC': 'bitcoin',
+      'ETH': 'ethereum',
+      'USDT': 'tether',
+      'BNB': 'binancecoin',
+      'SOL': 'solana',
+      'XRP': 'ripple',
+      'ADA': 'cardano',
+      'DOGE': 'dogecoin'
+    };
+
+    // 貨幣圖示設定
+    const CURRENCY_ICONS = {
+      'BTC': '<i class="fab fa-bitcoin"></i>',
+      'ETH': '<i class="fab fa-ethereum"></i>',
+      'USDT': '<i class="fas fa-coins"></i>',
+      'SOL': '<i class="fas fa-coins"></i>',
+      'XRP': '<i class="fas fa-coins"></i>',
+      'ADA': '<i class="fas fa-coins"></i>',
+      'DOGE': '<i class="fas fa-dog"></i>'
+    };
+
+    // 國旗對應表
+    const COUNTRY_FLAGS = {
+      'USD': 'us',  // 美國
+      'JPY': 'jp',  // 日本
+      'EUR': 'eu',  // 歐盟
+      'GBP': 'gb',  // 英國
+      'CNY': 'cn',  // 中國
+      'KRW': 'kr',  // 韓國
+      'BNB': 'bn',  // 汶萊
+      'AUD': 'au',  // 澳洲
+      'CAD': 'ca',  // 加拿大
+      'CHF': 'ch',  // 瑞士
+      'HKD': 'hk',  // 香港
+      'INR': 'in',  // 印度
+      'IDR': 'id',  // 印尼
+      'MYR': 'my',  // 馬來西亞
+      'NZD': 'nz',  // 紐西蘭
+      'PHP': 'ph',  // 菲律賓
+      'SGD': 'sg',  // 新加坡
+      'THB': 'th',  // 泰國
+      'VND': 'vn'   // 越南
+    };
+
+    // 預設圖示
+    const DEFAULT_ICON = '<i class="fas fa-coins"></i>';
+
+    // 從localStorage讀取貨幣設定
+    function loadCurrencies() {
+      const savedCurrencies = localStorage.getItem('currencies');
+      if (savedCurrencies) {
+        currencies = JSON.parse(savedCurrencies);
+      } else {
+        // 如果localStorage中沒有數據，使用預設值
+        currencies = {
+          'TWD': { name: '新台幣', rate: 1, time: new Date().toISOString() },
+          'USD': { name: '美元', rate: 0.033, time: new Date().toISOString() },
+          'JPY': { name: '日圓', rate: 3.7, time: new Date().toISOString() },
+          'EUR': { name: '歐元', rate: 0.03, time: new Date().toISOString() }
+        };
+        // 保存預設值到localStorage
+        localStorage.setItem('currencies', JSON.stringify(currencies));
+      }
+      console.log('已載入貨幣設定:', Object.keys(currencies));
+    }
+
+    // 格式化日期顯示
+    function formatDate(date) {
+      const month = date.getMonth() + 1;
+      const day = date.getDate();
+      const hour = date.getHours();
+      const minute = date.getMinutes();
+      return `${month}/${day} ${hour}:${minute < 10 ? '0' + minute : minute}`;
+    }
+
+    function getCurrencyIcon(code) {
+      // 如果是加密貨幣，使用專用圖示
+      if (CURRENCY_ICONS[code]) {
+        return CURRENCY_ICONS[code];
+      }
+      // 如果有國旗對應，使用國旗
+      if (COUNTRY_FLAGS[code]) {
+        return `<span class="flag-icon flag-icon-${COUNTRY_FLAGS[code]}"></span>`;
+      }
+      // 否則使用預設圖示
+      return DEFAULT_ICON;
+    }
+
+    async function getExchangeRate(code) {
+      // 如果是加密貨幣，依序嘗試不同 API
+      if (CRYPTO_CURRENCIES[code]) {
+        // 先嘗試 CoinGecko
+        try {
+          const response = await fetch(API_SOURCES.COINGECKO.url(code));
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          if (data[CRYPTO_CURRENCIES[code]] && data[CRYPTO_CURRENCIES[code]].twd) {
+            return API_SOURCES.COINGECKO.parse(data, code);
+          }
+        } catch (error) {
+          console.error(`從 CoinGecko 獲取 ${code} 匯率失敗:`, error);
+        }
+
+        // 如果 CoinGecko 失敗，嘗試 Binance
+        try {
+          const response = await fetch(API_SOURCES.BINANCE.url(code));
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          if (data.price) {
+            return await API_SOURCES.BINANCE.parse(data);
+          }
+        } catch (error) {
+          console.error(`從 Binance 獲取 ${code} 匯率失敗:`, error);
+        }
+      }
+
+      // 一般貨幣，依序嘗試不同 API
+      for (const [key, api] of Object.entries(API_SOURCES)) {
+        if (key === 'COINGECKO' || key === 'BINANCE') continue;
+
+        try {
+          const response = await fetch(api.url(code));
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          const data = await response.json();
+          if (data.rates && data.rates.TWD) {
+            return api.parse(data);
+          }
+        } catch (error) {
+          console.error(`從 ${api.name} 獲取 ${code} 匯率失敗:`, error);
+        }
+      }
+
+      return null;
+    }
+
+    function loadCurrencyList() {
+      const currencyListElement = document.getElementById('currencyList');
+      if (!currencyListElement) return;
+      
+      currencyListElement.innerHTML = '';
+      
+      Object.entries(currencies).forEach(([code, data]) => {
+        if (code === 'TWD') return; // 跳過台幣
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>
+            <div class="currency-list-item">
+              <span class="currency-icon">${getCurrencyIcon(code)}</span>
+              <span>${data.name} (${code})</span>
+            </div>
+          </td>
+          <td>${data.rate.toFixed(2)}</td>
+          <td>${new Date(data.time).toLocaleString()}</td>
+          <td>
+            <button class="currency-update-button" onclick="prepareUpdateRate('${code}')">修改</button>
+            <button class="currency-select-button" onclick="deleteCurrency('${code}')">刪除</button>
+          </td>
+        `;
+        currencyListElement.appendChild(row);
+      });
+      
+      // 檢查貨幣列表是否為空 (除了TWD)
+      const nonTWDCurrencies = Object.keys(currencies).filter(code => code !== 'TWD');
+      if (nonTWDCurrencies.length === 0) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td colspan="4" class="currency-list-empty">尚未設定任何貨幣，請點擊「+ 新增貨幣...」來添加</td>
+        `;
+        currencyListElement.appendChild(row);
+      }
+    }
+
+    async function updateLiveRates() {
+      try {
+        const liveRatesList = document.getElementById('liveRates');
+        liveRatesList.innerHTML = '';
+        
+        let successCount = 0;
+        let totalCount = Object.keys(currencies).length;
+        
+        for (const [code, currencyData] of Object.entries(currencies)) {
+          try {
+            const rateData = await getExchangeRate(code);
+            
+            if (rateData && rateData.rate) {
+              successCount++;
+              const formattedTime = formatDate(new Date(rateData.time));
+              
+              const li = document.createElement('li');
+              li.className = 'currency-live-rate-item';
+              li.innerHTML = `
+                <div class="currency-info">
+                  <span class="currency-icon">${getCurrencyIcon(code)}</span>
+                  <span class="currency-code">${code}</span>
+                  <span class="currency-name">${currencyData.name}</span>
+                </div>
+                <div class="currency-rate-info">
+                  <div class="currency-rate-value">
+                    <span class="currency-live-rate">${rateData.rate.toFixed(2)}</span>
+                    <span class="currency-set-rate">${currencyData.rate.toFixed(2)}</span>
+                  </div>
+                  <div class="currency-rate-time">${formattedTime}</div>
+                </div>
+              `;
+              liveRatesList.appendChild(li);
+            } else {
+              // 如果 API 失敗，只顯示設定的匯率
+              const li = document.createElement('li');
+              li.className = 'currency-live-rate-item';
+              li.innerHTML = `
+                <div class="currency-info">
+                  <span class="currency-icon">${getCurrencyIcon(code)}</span>
+                  <span class="currency-code">${code}</span>
+                  <span class="currency-name">${currencyData.name}</span>
+                </div>
+                <div class="currency-rate-info">
+                  <div class="currency-rate-value">
+                    <span class="currency-live-rate">無法取得</span>
+                    <span class="currency-set-rate">${currencyData.rate.toFixed(2)}</span>
+                  </div>
+                  <div class="currency-rate-time">${formatDate(new Date(currencyData.time))}</div>
+                </div>
+              `;
+              liveRatesList.appendChild(li);
+            }
+          } catch (error) {
+            console.error(`處理 ${code} 匯率時發生錯誤:`, error);
+            // 如果獲取失敗，只顯示設定的匯率
+            const li = document.createElement('li');
+            li.className = 'currency-live-rate-item';
+            li.innerHTML = `
+              <div class="currency-info">
+                <span class="currency-icon">${getCurrencyIcon(code)}</span>
+                <span class="currency-code">${code}</span>
+                <span class="currency-name">${currencyData.name}</span>
+              </div>
+              <div class="currency-rate-info">
+                <div class="currency-rate-value">
+                  <span class="currency-live-rate">無法取得</span>
+                  <span class="currency-set-rate">${currencyData.rate.toFixed(2)}</span>
+                </div>
+                <div class="currency-rate-time">${formatDate(new Date(currencyData.time))}</div>
+              </div>
+            `;
+            liveRatesList.appendChild(li);
+          }
+        }
+        
+        // 更新涵蓋率資訊
+        const coverageRate = (successCount / totalCount * 100).toFixed(1);
+        document.getElementById('coverageRate').textContent = coverageRate + '%';
+        
+        document.getElementById('updateTime').textContent = `最後更新：${formatDate(new Date())}`;
+        
+      } catch (error) {
+        console.error('更新即時匯率失敗:', error);
+        alert('更新即時匯率失敗，請稍後再試');
+      }
+    }
+
+    // 更新貨幣選擇下拉選單
+    function updateCurrencySelects() {
+      // 更新轉換器的來源貨幣選擇
+      const fromCurrencySelect = document.getElementById('fromCurrency');
+      if (fromCurrencySelect) {
+        const currentValue = fromCurrencySelect.value;
+        fromCurrencySelect.innerHTML = '';
+        
+        // 添加所有非台幣的貨幣
+        Object.entries(currencies).forEach(([code, data]) => {
+          if (code !== 'TWD') {
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = `${data.name} (${code})`;
+            fromCurrencySelect.appendChild(option);
+          }
+        });
+        
+        if (currentValue && currentValue !== 'TWD' && Object.keys(currencies).includes(currentValue)) {
+          fromCurrencySelect.value = currentValue;
+        }
+      }
+      
+      // 更新修改匯率的選擇框
+      const editCurrencySelect = document.getElementById('editCurrency');
+      const editCurrencyOptions = document.getElementById('editCurrencyOptions');
+      
+      if (editCurrencySelect && editCurrencyOptions) {
+        // 清空原有選項，但保留前兩個基本選項
+        editCurrencySelect.innerHTML = '<option value="">請選擇貨幣</option><option value="new">+ 新增貨幣...</option>';
+        // 獲取現有子元素數量
+        const childCount = editCurrencyOptions.children.length;
+        // 如果大於2（即有除了"請選擇"和"新增"外的選項），則保留前兩個，刪除其他
+        if (childCount > 2) {
+          // 保留前兩個選項，從第三個開始刪除
+          while (editCurrencyOptions.children.length > 2) {
+            editCurrencyOptions.removeChild(editCurrencyOptions.lastChild);
+          }
+        }
+        
+        // 添加所有非台幣的貨幣
+        Object.entries(currencies).forEach(([code, data]) => {
+          if (code !== 'TWD') {
+            // 添加到隱藏的select元素
+            const option = document.createElement('option');
+            option.value = code;
+            option.textContent = `${data.name} (${code})`;
+            editCurrencySelect.appendChild(option);
+            
+            // 添加到自訂下拉選單
+            const customOption = document.createElement('div');
+            customOption.className = 'custom-select-option';
+            customOption.setAttribute('data-value', code);
+            customOption.innerHTML = `
+              <span class="currency-icon">${getCurrencyIcon(code)}</span>
+              <span>${data.name} (${code})</span>
+            `;
+            editCurrencyOptions.appendChild(customOption);
+          }
+        });
+      }
+    }
+
+    // 初始化自訂下拉選單
+    function initCustomSelect() {
+      const editCurrencySelected = document.getElementById('editCurrencySelected');
+      const editCurrencyOptions = document.getElementById('editCurrencyOptions');
+      const editCurrency = document.getElementById('editCurrency');
+      
+      if (editCurrencySelected && editCurrencyOptions) {
+        // 點擊顯示/隱藏選項
+        editCurrencySelected.addEventListener('click', function() {
+          editCurrencyOptions.classList.toggle('show');
+        });
+        
+        // 點擊選項時
+        editCurrencyOptions.addEventListener('click', function(e) {
+          const option = e.target.closest('.custom-select-option');
+          if (option) {
+            const value = option.getAttribute('data-value');
+            const text = option.textContent.trim();
+            
+            // 更新顯示
+            if (value === 'new') {
+              editCurrencySelected.innerHTML = `
+                <span class="currency-icon"><i class="fas fa-plus-circle"></i></span>
+                <span>新增貨幣...</span>
+              `;
+            } else if (value === '') {
+              editCurrencySelected.innerHTML = `<span>請選擇貨幣</span>`;
+            } else {
+              editCurrencySelected.innerHTML = option.innerHTML;
+            }
+            
+            // 更新hidden select的值
+            editCurrency.value = value;
+            
+            // 觸發change事件
+            const event = new Event('change');
+            editCurrency.dispatchEvent(event);
+            
+            // 隱藏選項
+            editCurrencyOptions.classList.remove('show');
+          }
+        });
+        
+        // 點擊其他地方時關閉選單
+        document.addEventListener('click', function(e) {
+          if (!editCurrencySelected.contains(e.target) && !editCurrencyOptions.contains(e.target)) {
+            editCurrencyOptions.classList.remove('show');
+          }
+        });
+      }
+    }
+
+    // 頁面載入時初始化
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCurrencies();
+      loadCurrencyList();
+      updateCurrencySelects();
+      updateLiveRates();
+      toggleShopeeOptions();
+      
+      // 初始化自訂下拉選單
+      initCustomSelect();
+      initConverterCustomSelect();
+      generateCurrencyOptions();
+      
+      // 對 editCurrency 選擇框添加 change 事件監聽器
+      const editCurrencySelect = document.getElementById('editCurrency');
+      if (editCurrencySelect) {
+        editCurrencySelect.addEventListener('change', function() {
+          const editRate = document.getElementById('editRate');
+          const newCurrencyInputs = document.getElementById('newCurrencyInputs');
+          const saveBtn = document.getElementById('saveCurrencyBtn');
+          const deleteBtn = document.getElementById('deleteCurrencyBtn');
+          
+          if (this.value === 'new') {
+            // 顯示新增貨幣的輸入欄位
+            newCurrencyInputs.style.display = 'block';
+            editRate.value = '';
+            saveBtn.innerHTML = '新增貨幣';
+            saveBtn.onclick = saveCurrency;
+            deleteBtn.style.display = 'none';
+          } else if (this.value === '') {
+            // 未選擇貨幣
+            newCurrencyInputs.style.display = 'none';
+            editRate.value = '';
+            saveBtn.innerHTML = '修改匯率';
+            saveBtn.onclick = editCurrencyRate;
+            deleteBtn.style.display = 'none';
+          } else {
+            // 顯示修改匯率界面
+            newCurrencyInputs.style.display = 'none';
+            saveBtn.innerHTML = '修改匯率';
+            saveBtn.onclick = editCurrencyRate;
+            
+            // 顯示刪除按鈕
+            deleteBtn.style.display = 'inline-block';
+            deleteBtn.onclick = function() {
+              deleteCurrency(editCurrencySelect.value);
+            };
+            
+            if (this.value && currencies[this.value]) {
+              editRate.value = currencies[this.value].rate;
+            } else {
+              editRate.value = '';
+            }
+          }
+        });
+      }
+    });
+
+    // 切換標籤頁
+    function switchTab(tabId) {
+      // 隱藏所有標籤內容
+      document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+      });
+      
+      // 取消激活所有標籤按鈕
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.classList.remove('active');
+      });
+      
+      // 顯示選中的標籤內容
+      document.getElementById(tabId).classList.add('active');
+      
+      // 激活對應的標籤按鈕
+      document.querySelector(`.tab-button[onclick="switchTab('${tabId}')"]`).classList.add('active');
+    }
+
+    function deleteCurrency(code) {
+      if (code === 'TWD') {
+        alert('無法刪除基準貨幣（新台幣）');
+        return;
+      }
+
+      if (confirm(`確定要刪除 ${currencies[code].name} (${code}) 嗎？`)) {
+        delete currencies[code];
+        localStorage.setItem('currencies', JSON.stringify(currencies));
+        
+        // 更新界面
+        loadCurrencyList();
+        updateCurrencySelects();
+        
+        // 刷新頁面以確保所有組件都被正確更新
+        location.reload();
+      }
+    }
+
+    async function updateSingleRate(code) {
+      try {
+        const rate = await getExchangeRate(code);
+        if (rate && rate.rate) {
+          currencies[code].rate = rate.rate;
+          currencies[code].time = rate.time || new Date().toISOString();
+          localStorage.setItem('currencies', JSON.stringify(currencies));
+          loadCurrencyList();
+          alert(`已更新 ${currencies[code].name} (${code}) 匯率為 ${rate.rate.toFixed(4)}`);
+        } else {
+          alert(`無法獲取 ${currencies[code].name} (${code}) 的即時匯率，請稍後再試`);
+        }
+      } catch (error) {
+        console.error('更新匯率失敗:', error);
+        alert('更新匯率失敗，請稍後再試');
+      }
+    }
+
+    // 修改貨幣匯率
+    function editCurrencyRate() {
+      const code = document.getElementById('editCurrency').value;
+      const rate = parseFloat(document.getElementById('editRate').value);
+      
+      if (!code) {
+        alert('請選擇要修改的貨幣');
+        return;
+      }
+      
+      if (isNaN(rate) || rate <= 0) {
+        alert('請輸入有效的匯率');
+        return;
+      }
+      
+      // 更新貨幣匯率
+      currencies[code].rate = rate;
+      currencies[code].time = new Date().toISOString();
+      
+      localStorage.setItem('currencies', JSON.stringify(currencies));
+      
+      // 更新界面
+      loadCurrencyList();
+      updateCurrencySelects();
+      
+      // 清空輸入
+      document.getElementById('editCurrency').value = '';
+      document.getElementById('editRate').value = '';
+      
+      alert(`已成功修改 ${currencies[code].name} (${code}) 匯率為 ${rate}`);
+      
+      // 刷新頁面
+      location.reload();
+    }
+
+    // 計算匯率轉換
+    function calculate() {
+      const fromCurrency = document.getElementById("fromCurrency").value;
+      const amount = parseFloat(document.getElementById("amount").value);
+      const toCurrency = 'TWD'; // 固定轉換到台幣
+
+      if (isNaN(amount) || amount <= 0) {
+        alert('請輸入有效的金額');
+        return;
+      }
+
+      if (!fromCurrency) {
+        alert('請選擇貨幣');
+        return;
+      }
+
+      // 外幣轉台幣
+      const exchangeRate = currencies[fromCurrency].rate;
+      const result = Math.ceil(amount * exchangeRate); // 無條件進位到整數
+
+      // 顯示結果
+      let resultMessage = `
+        <p><span>轉換金額：</span><span style="float: right;">${result} ${toCurrency}</span></p>
+        <p><span>匯率：</span><span style="float: right;">1 ${fromCurrency} = ${currencies[fromCurrency].rate.toFixed(2)} ${toCurrency}</span></p>
+        <p>匯率更新時間: ${new Date(currencies[fromCurrency].time).toLocaleString()}</p>
+      `;
+      
+      document.getElementById('currencyResult').innerHTML = resultMessage;
+    }
+
+    // 準備更新匯率
+    function prepareUpdateRate(code) {
+      const editCurrencySelect = document.getElementById('editCurrency');
+      const editRate = document.getElementById('editRate');
+      const saveBtn = document.getElementById('saveCurrencyBtn');
+      const editCurrencySelected = document.getElementById('editCurrencySelected');
+      const editCurrencyOptions = document.getElementById('editCurrencyOptions');
+      
+      // 選擇要修改的貨幣
+      editCurrencySelect.value = code;
+      
+      // 更新自訂下拉選單顯示
+      const selectedOption = Array.from(editCurrencyOptions.children).find(option => option.getAttribute('data-value') === code);
+      if (selectedOption) {
+        editCurrencySelected.innerHTML = selectedOption.innerHTML;
+      }
+      
+      // 填入當前匯率
+      if (currencies[code]) {
+        editRate.value = currencies[code].rate;
+      }
+      
+      // 設置按鈕
+      const newCurrencyInputs = document.getElementById('newCurrencyInputs');
+      newCurrencyInputs.style.display = 'none';
+      saveBtn.innerHTML = '修改匯率';
+      saveBtn.onclick = editCurrencyRate;
+      
+      // 切換到設定頁面
+      switchTab('settings');
+      
+      // 滾動到編輯區域
+      editCurrencySelect.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // 儲存新貨幣
+    function saveCurrency() {
+      // 取得自訂貨幣資訊
+      const code = document.getElementById('customCode').value.trim().toUpperCase();
+      const name = document.getElementById('customName').value.trim();
+      
+      if (!code || code.length < 3) {
+        alert('請輸入有效的貨幣代碼（至少3個字符）');
+        return;
+      }
+      
+      if (!name) {
+        alert('請輸入貨幣名稱');
+        return;
+      }
+      
+      // 檢查是否已存在
+      if (currencies[code]) {
+        if (!confirm(`${name} (${code}) 已存在，確定要覆蓋嗎？`)) {
+          return;
+        }
+      }
+      
+      const rate = parseFloat(document.getElementById('editRate').value);
+      if (isNaN(rate) || rate <= 0) {
+        alert('請輸入有效的匯率');
+        return;
+      }
+
+      // 儲存貨幣
+      currencies[code] = {
+        name: name,
+        rate: rate,
+        time: new Date().toISOString()
+      };
+
+      localStorage.setItem('currencies', JSON.stringify(currencies));
+      
+      // 更新界面
+      loadCurrencyList();
+      updateCurrencySelects();
+      
+      // 清空輸入
+      document.getElementById('customCode').value = '';
+      document.getElementById('customName').value = '';
+      document.getElementById('editRate').value = '';
+      document.getElementById('editCurrency').value = '';
+      document.getElementById('newCurrencyInputs').style.display = 'none';
+      
+      // 恢復按鈕文字和功能
+      const saveBtn = document.getElementById('saveCurrencyBtn');
+      saveBtn.innerHTML = '修改匯率';
+      saveBtn.onclick = editCurrencyRate;
+      
+      alert(`已成功新增 ${name} (${code}) 匯率`);
+      
+      // 刷新頁面
+      location.reload();
+    }
+
+    // 切換蝦皮選項的顯示/隱藏
+    function toggleShopeeOptions() {
+      const platform = document.getElementById("platform").value;
+      const shopeeOptions = document.getElementById("shopeeOptions");
+      if (platform === "shopee") {
+        shopeeOptions.classList.remove('hidden');
+      } else {
+        shopeeOptions.classList.add('hidden');
+      }
+    }
+
+    function handleCoinRewardChange(checkbox) {
+      const coinReward = document.getElementById("coinReward");
+      const coinReward15 = document.getElementById("coinReward15");
+      
+      if (checkbox.id === "coinReward") {
+        if (checkbox.checked) {
+          coinReward15.checked = false;
+        }
+      } else {
+        if (checkbox.checked) {
+          coinReward.checked = false;
+        }
+      }
+    }
+
+    function calculateAll() {
+      const vatRate = 0.05;
+      const incomeTaxRate = 0.2;
+
+      let price = parseFloat(document.getElementById("price").value);
+      let cost = parseFloat(document.getElementById("cost").value);
+      let targetProfitPercent = parseFloat(document.getElementById("targetProfitPercent").value);
+      let targetProfit;
+
+      // 計算蝦皮費用
+      const platform = document.getElementById("platform").value;
+      let shopeeFees = 0;
+      let shopeeFeesBreakdown = [];
+      let shopeeFeeRate = 0;
+
+      if (platform === "shopee") {
+        if (document.getElementById("transactionFee").checked) {
+          shopeeFeeRate += 0.055;
+        }
+        
+        if (document.getElementById("coinReward").checked) {
+          shopeeFeeRate += 0.03;
+        }
+        
+        if (document.getElementById("coinReward15").checked) {
+          shopeeFeeRate += 0.015;
+        }
+        
+        if (document.getElementById("freeShipping").checked) {
+          shopeeFeeRate += 0.07;
+          if (document.getElementById("coinReward").checked || document.getElementById("coinReward15").checked) {
+            shopeeFeeRate -= 0.005;
+          }
+        }
+        
+        if (document.getElementById("processingFee").checked) {
+          shopeeFeeRate += 0.02;
+        }
+      }
+
+      if (!isNaN(targetProfitPercent) && targetProfitPercent > 0) {
+        targetProfit = cost * (targetProfitPercent / 100);
+      }
+
+      if (!price && cost && !isNaN(targetProfit)) {
+        const grossProfit = targetProfit / (1 - incomeTaxRate);
+        const revenueExVAT = cost + grossProfit;
+        price = parseFloat((revenueExVAT * (1 + vatRate) / (1 - shopeeFeeRate)).toFixed(2));
+      }
+
+      if (platform === "shopee" && price) {
+        if (document.getElementById("transactionFee").checked) {
+          const transactionFee = price * 0.055;
+          shopeeFees += transactionFee;
+          shopeeFeesBreakdown.push(`成交手續費：${transactionFee.toFixed(2)} 元 (5.5%)`);
+        }
+        
+        if (document.getElementById("coinReward").checked) {
+          const otherServiceFee = price * 0.03;
+          shopeeFees += otherServiceFee;
+          shopeeFeesBreakdown.push(`蝦幣回饋專案：${otherServiceFee.toFixed(2)} 元 (3%)`);
+        }
+        
+        if (document.getElementById("coinReward15").checked) {
+          const otherServiceFee = price * 0.015;
+          shopeeFees += otherServiceFee;
+          shopeeFeesBreakdown.push(`蝦幣回饋專案：${otherServiceFee.toFixed(2)} 元 (1.5%)`);
+        }
+        
+        if (document.getElementById("freeShipping").checked) {
+          const freeShippingFee = price * 0.07;
+          shopeeFees += freeShippingFee;
+          if (document.getElementById("coinReward").checked || document.getElementById("coinReward15").checked) {
+            shopeeFees -= price * 0.005;
+            shopeeFeesBreakdown.push(`免運補貼：${freeShippingFee.toFixed(2)} 元 (7%) - 0.5% 優惠`);
+          } else {
+            shopeeFeesBreakdown.push(`免運補貼：${freeShippingFee.toFixed(2)} 元 (7%)`);
+          }
+        }
+        
+        if (document.getElementById("processingFee").checked) {
+          const processingFee = price * 0.02;
+          shopeeFees += processingFee;
+          shopeeFeesBreakdown.push(`金流與系統處理費：${processingFee.toFixed(2)} 元 (2%)`);
+        }
+      }
+
+      if (price && cost) {
+        let priceAfterShopee = price;
+        if (platform === "shopee") {
+          priceAfterShopee -= shopeeFees;
+        }
+        
+        const revenue = priceAfterShopee / (1 + vatRate);
+        const vat = priceAfterShopee - revenue;
+        
+        const grossProfit = revenue - cost;
+        const incomeTax = grossProfit * incomeTaxRate;
+        const netProfit = grossProfit - incomeTax;
+        const netProfitRateCost = (netProfit / cost) * 100;
+        const netProfitRatePrice = (netProfit / price) * 100;
+
+        let resultHTML = `
+          <div class="result-header">
+            ✅ <b>自動計算結果：</b><br>
+            ▸ 含稅售價：<b>${price.toFixed(2)}</b> 元<br>
+            ▸ 預估訂單進帳：<b>${priceAfterShopee.toFixed(2)}</b> 元
+          </div>
+          <div class="result-content">
+            <div class="fee-section">
+              <h3>📤 支出項目</h3>
+        `;
+
+        if (platform === "shopee" && shopeeFees > 0) {
+          resultHTML += `
+              <div class="shopee-fees-container">
+                <span class="fee-text shopee-fees-toggle" onclick="toggleShopeeFeesDetail(this)">
+                  ❌ 蝦皮費用總計：<b>${shopeeFees.toFixed(2)}</b> 元 <span class="toggle-icon">▼</span>
+                </span>
+                <div class="shopee-fees-detail" style="display: none;">
+                  ${shopeeFeesBreakdown.map(fee => `<span class="shopee-fee-detail">　　${fee}</span>`).join('<br>')}
+                </div>
+              </div>
+          `;
+        }
+
+        resultHTML += `
+              <span class="fee-text">❌ 營業稅（5%）：<b>${vat.toFixed(2)}</b> 元</span><br>
+              <span class="fee-text">❌ 營所稅（20%）：<b>${incomeTax.toFixed(2)}</b> 元</span>
+            </div>
+            <div class="profit-section">
+              <h3>📥 收益項目</h3>
+              <span class="profit-text">🟢 毛利：<b>${grossProfit.toFixed(2)}</b> 元</span><br>
+              <span class="profit-text-bold net-profit">🟢 稅後淨利：<b>${netProfit.toFixed(2)}</b> 元</span><br>
+              <hr class="divider">
+              💰 淨利佔成本：<b class="profit-text">${netProfitRateCost.toFixed(2)}%</b><br>
+              💰 淨利佔售價：<b class="profit-text">${netProfitRatePrice.toFixed(2)}%</b>
+            </div>
+          </div>
+        `;
+
+        document.getElementById("priceResult").innerHTML = resultHTML;
+      } else {
+        document.getElementById("priceResult").innerHTML = "❗請至少輸入成本，並輸入售價或想要的利潤率。";
+      }
+    }
+
+    function toggleShopeeFeesDetail(element) {
+      const detailElement = element.parentElement.querySelector('.shopee-fees-detail');
+      const toggleIcon = element.querySelector('.toggle-icon');
+      if (detailElement.style.display === 'none') {
+        detailElement.style.display = 'block';
+        toggleIcon.textContent = '▲';
+      } else {
+        detailElement.style.display = 'none';
+        toggleIcon.textContent = '▼';
+      }
+    }
+
+    // 修改 generateCurrencyOptions 函數，支援自訂下拉選單
+    function generateCurrencyOptions() {
+      const fromCurrencySelect = document.getElementById('fromCurrency');
+      const fromCurrencyOptions = document.getElementById('fromCurrencyOptions');
+      
+      // 清空現有選項
+      fromCurrencySelect.innerHTML = '';
+      fromCurrencyOptions.innerHTML = '';
+      
+      // 添加新選項，帶有圖標
+      Object.keys(currencies).sort().forEach(code => {
+        if (code !== 'TWD') {
+          const currency = currencies[code];
+          const icon = getCurrencyIcon(code);
+          
+          // 為隱藏的 select 添加選項
+          const option = document.createElement('option');
+          option.value = code;
+          option.textContent = `${currency.name} (${code})`;
+          fromCurrencySelect.appendChild(option);
+          
+          // 為自訂下拉選單添加選項
+          const customOption = document.createElement('div');
+          customOption.className = 'custom-select-option';
+          customOption.setAttribute('data-value', code);
+          customOption.innerHTML = `
+            <span class="currency-icon">${icon}</span>
+            <span>${currency.name} (${code})</span>
+          `;
+          fromCurrencyOptions.appendChild(customOption);
+        }
+      });
+    }
+
+    // 初始化貨幣轉換器的自訂下拉選單
+    function initConverterCustomSelect() {
+      const fromCurrencySelected = document.getElementById('fromCurrencySelected');
+      const fromCurrencyOptions = document.getElementById('fromCurrencyOptions');
+      const fromCurrency = document.getElementById('fromCurrency');
+      
+      if (fromCurrencySelected && fromCurrencyOptions) {
+        // 點擊顯示/隱藏選項
+        fromCurrencySelected.addEventListener('click', function() {
+          fromCurrencyOptions.classList.toggle('show');
+        });
+        
+        // 點擊選項時
+        fromCurrencyOptions.addEventListener('click', function(e) {
+          const option = e.target.closest('.custom-select-option');
+          if (option) {
+            const value = option.getAttribute('data-value');
+            
+            // 更新顯示
+            fromCurrencySelected.innerHTML = option.innerHTML;
+            
+            // 更新hidden select的值
+            fromCurrency.value = value;
+            
+            // 隱藏選項
+            fromCurrencyOptions.classList.remove('show');
+          }
+        });
+        
+        // 點擊其他地方時關閉選單
+        document.addEventListener('click', function(e) {
+          if (!fromCurrencySelected.contains(e.target) && !fromCurrencyOptions.contains(e.target)) {
+            fromCurrencyOptions.classList.remove('show');
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

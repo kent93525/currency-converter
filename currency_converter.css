@@ -1,0 +1,1082 @@
+/* 貨幣轉換器專用樣式 */
+.currency-converter-container {
+  max-width: 600px;
+  padding: 10px;
+  border-radius: 12px;
+  background: #e8e8e8;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  font-family: sans-serif;
+  margin: 20px auto;
+}
+
+.currency-converter-title {
+  color: #090909;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.currency-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.input-group label {
+  font-weight: 500;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.currency-form-select,
+.currency-form-input,
+.currency-calculate-button {
+  font-size: 16px;
+  border-radius: 8px;
+  color: #090909;
+  background: #e8e8e8;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  padding: 10px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.currency-form-select:hover,
+.currency-form-input:hover {
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.currency-form-select:focus,
+.currency-form-input:focus {
+  outline: none;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.currency-calculate-button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #e8e8e8;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  width: 100%;
+}
+
+.currency-calculate-button:hover {
+  background: #e8e8e8;
+  box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.1), inset -4px -4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.currency-result-container {
+  margin-top: 16px;
+  line-height: 1.8;
+  font-size: 15px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #e8e8e8;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.currency-result-container p {
+  margin: 8px 0;
+  padding: 10px;
+  border-radius: 8px;
+  background: #e8e8e8;
+  box-shadow: 3px 3px 6px #c5c5c5, -3px -3px 6px #ffffff;
+  transition: all 0.3s ease;
+}
+
+.currency-result-container p:hover {
+  transform: translateY(-2px);
+  box-shadow: 4px 4px 8px #c5c5c5, -4px -4px 8px #ffffff;
+}
+
+.currency-result-container p:first-child {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: #090909;
+  border-left: 4px solid #0088cc;
+  padding-left: 12px;
+}
+
+.currency-result-container p:nth-child(2) {
+  color: #5a5a5a;
+  background: #e8e8e8;
+  box-shadow: inset 3px 3px 6px #c5c5c5, inset -3px -3px 6px #ffffff;
+  display: flex;
+  justify-content: space-between;
+}
+
+.currency-result-container p:last-child {
+  color: #666;
+  font-size: 0.9em;
+  text-align: right;
+  font-style: italic;
+  box-shadow: none;
+  background: transparent;
+}
+
+.currency-live-rates-container {
+  background: #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  padding: 10px;
+  height: fit-content;
+  top: 10px;
+  width: calc(100% - 20px);
+  box-sizing: border-box;
+  margin: 10px;
+}
+
+.currency-live-rates-title {
+  color: #090909;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.currency-live-rates-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.currency-live-rate-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  margin-bottom: 6px;
+  background: #e8e8e8;
+  border-radius: 8px;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  flex-wrap: nowrap;
+}
+
+.currency-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 130px;
+  flex-shrink: 0;
+  padding-right: 10px;
+}
+
+.currency-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  color: #090909;
+  flex-shrink: 0;
+}
+
+.currency-code {
+  font-weight: bold;
+  color: #090909;
+  white-space: nowrap;
+}
+
+.currency-name {
+  color: #666;
+  white-space: nowrap;
+}
+
+.currency-rate-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.currency-rate-value {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  width: 160px;
+}
+
+.currency-live-rate {
+  color: #4caf50;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100px;
+  text-align: left;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.currency-set-rate {
+  color: #666;
+  font-size: 0.9em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100px;
+  text-align: left;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.currency-rate-time {
+  font-size: 0.9em;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+  width: 100px;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+.currency-coverage-info {
+  background: #e8e8e8;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.currency-success {
+  color: #e8e8e8;
+  font-weight: bold;
+}
+
+.currency-error {
+  color: #ff4444;
+  font-weight: bold;
+}
+
+.currency-update-time {
+  margin-top: 15px;
+  text-align: center;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.currency-refresh-button {
+  background: #e8e8e8;
+  color: #090909;
+  font-weight: bold;
+  margin-top: 20px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.currency-refresh-button:hover {
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  color: #666;
+}
+
+/* 貨幣設定表格樣式 */
+.currency-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.currency-table th,
+.currency-table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #c5c5c5;
+}
+
+.currency-table th {
+  background: #e8e8e8;
+  font-weight: bold;
+  color: #090909;
+}
+
+.currency-table tr:last-child td {
+  border-bottom: none;
+}
+
+.currency-select-button,
+.currency-update-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 5px;
+  background: #e8e8e8;
+  color: #090909;
+  box-shadow: 3px 3px 6px #c5c5c5, -3px -3px 6px #ffffff;
+}
+
+.currency-select-button:hover,
+.currency-update-button:hover {
+  box-shadow: inset 2px 2px 6px #c5c5c5, inset -2px -2px 6px #ffffff;
+  color: #666;
+}
+
+@media (max-width: 767px) {
+  .currency-converter-container,
+  .currency-live-rates-container {
+    margin: 10px;
+    padding: 10px;
+  }
+  
+  .currency-form-select,
+  .currency-form-input,
+  .currency-calculate-button {
+    font-size: 14px;
+  }
+
+  .currency-table {
+    overflow-x: auto;
+  }
+}
+
+
+
+/* 基本布局 */
+.main-container {
+  display: grid;
+  grid-template-columns: 700px 600px;
+  gap: 10px;
+  width: 1300px;
+  margin: 0 auto;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.currency-converter-container {
+  background: var(--card-background);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  padding: 25px;
+  height: fit-content;
+}
+
+.currency-settings-container {
+  background: var(--card-background);
+  border-radius: 12px;
+  box-shadow: 0 4px 6px var(--shadow-color);
+  padding: 25px;
+  height: fit-content;
+}
+
+/* 左側容器 */
+.left-container {
+  background: #e8e8e8;
+  border-radius: 12px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  padding: 10px;
+  width: 700px;
+  box-sizing: border-box;
+  margin: 10px;
+}
+
+/* 右側容器 */
+.right-container {
+  width: 600px;
+  box-sizing: border-box;
+}
+
+/* 標籤按鈕容器 */
+.tab-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* 標籤按鈕樣式 */
+.tab-button {
+  flex: 1;
+  padding: 15px;
+  background: #e8e8e8;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+  color: #666;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.tab-button.active {
+  background: #e8e8e8;
+  color: white;
+  box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.1), inset -4px -4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.tab-button:hover {
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.tab-button.active:hover {
+  background: #e8e8e8;
+}
+
+/* 內容區塊 */
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+/* 表格容器 */
+.currency-table-container {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 8px;
+  background: #e8e8e8;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+/* 表格標題樣式 */
+.currency-table-caption {
+  caption-side: top;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #333;
+  padding: 10px 0;
+  margin-bottom: 5px;
+}
+
+/* 響應式設計 */
+@media (max-width: 1300px) {
+  .main-container {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1300px) {
+  .main-container {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  
+  .left-container,
+  .right-container {
+    width: 100%;
+  }
+  
+  .currency-live-rates-container {
+    position: static;
+  }
+  
+  .tab-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  
+  .tab-button {
+    flex: 1;
+    min-width: 150px;
+  }
+  
+  .currency-form-select,
+  .currency-form-input,
+  .currency-calculate-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .currency-table {
+    overflow-x: auto;
+  }
+}
+
+/* 即時匯率響應式設計 */
+@media (max-width: 600px) {
+  .currency-rate-info,
+  .currency-rate-info-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .currency-rate-value {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .currency-live-rate,
+  .currency-set-rate,
+  .currency-live-rate-header,
+  .currency-set-rate-header {
+    min-width: auto;
+  }
+  
+  .currency-rate-time,
+  .currency-rate-time-header {
+    text-align: left;
+    min-width: auto;
+  }
+}
+
+/* 匯率標頭樣式 */
+.currency-rate-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  background: #e8e8e8;
+  border-radius: 8px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  flex-wrap: nowrap;
+  font-weight: bold;
+  color: #333;
+}
+
+.currency-info-header {
+  width: 130px;
+  flex-shrink: 0;
+  padding-right: 5px;
+}
+
+.currency-rate-info-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-grow: 1;
+  margin-left: 10px;
+}
+
+.currency-live-rate-header,
+.currency-set-rate-header,
+.currency-rate-time-header {
+  width: 100px;
+  text-align: left;
+  flex-shrink: 0;
+}
+
+/* 由於標頭已經顯示標籤，這裡移除行內的重複標籤 */
+.currency-live-rate::before {
+  content: "";
+  padding-right: 0;
+}
+
+.currency-set-rate::before {
+  content: "";
+  padding-right: 0;
+}
+
+.currency-rate-time::before {
+  content: "";
+  font-weight: normal;
+  padding-right: 0;
+}
+
+/* 貨幣列表項目樣式 */
+.currency-list-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.currency-list-item .currency-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1em;
+  flex-shrink: 0;
+}
+
+/* 使用自定義下拉選單顯示圖標 - 如果需要的話可以取消註釋使用
+.currency-form-select option {
+  padding-left: 30px;
+  background-repeat: no-repeat;
+  background-position: 5px center;
+}
+*/
+
+/* 定義CSS變數 */
+:root {
+  --primary-color: #e8e8e8;
+  --border-color: #c5c5c5;
+  --light-bg: #f5f5f5;
+  --card-background: #e8e8e8;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+/* 自訂下拉選單樣式 */
+.custom-select-container {
+  position: relative;
+  width: 100%;
+  cursor: pointer;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.custom-select-selected {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  background-color: #e8e8e8;
+  transition: all 0.2s ease;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.custom-select-selected:hover {
+  border-color: var(--primary-color);
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.custom-select-selected::after {
+  content: '▼';
+  font-size: 0.7em;
+  color: #666;
+  margin-left: auto;
+}
+
+.custom-select-options {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  right: 0;
+  max-height: 0;
+  overflow-y: auto;
+  background-color: #e8e8e8;
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.custom-select-options.show {
+  max-height: 240px;
+  opacity: 1;
+  pointer-events: auto;
+  padding: 10px 0;
+  border: 1px solid var(--border-color);
+}
+
+.custom-select-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  transition: background-color 0.2s;
+}
+
+.custom-select-option:hover {
+  background-color: #d8d8d8;
+}
+
+.currency-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: 16px;
+}
+
+.currency-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* 管理區域的表單佈局 */
+.currency-management-container {
+  background-color: #e8e8e8;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.currency-primary-button {
+  background: #e8e8e8;
+  color: white;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.currency-primary-button:hover {
+  background: #e8e8e8;
+  box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.1), inset -4px -4px 12px rgba(255, 255, 255, 0.1);
+}
+
+.currency-danger-button {
+  background: #ff4444;
+  color: white;
+  font-weight: bold;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+}
+
+.currency-danger-button:hover {
+  background: #e53935;
+  box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.1), inset -4px -4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* 商品售價計算器樣式 */
+.calculator-content {
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+.platform-select-container {
+  margin-bottom: 10px;
+}
+
+.shopee-options {
+  background: #e8e8e8;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shopee-options.hidden {
+  display: none;
+}
+
+.shopee-option-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.result-header {
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #e8e8e8;
+  border-radius: 8px;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.result-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.fee-section, 
+.profit-section {
+  padding: 10px;
+  background: #e8e8e8;
+  border-radius: 8px;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.fee-text, 
+.profit-text {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.shopee-fees-toggle {
+  cursor: pointer;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.toggle-icon {
+  display: inline-block;
+  margin-left: 10px;
+  font-size: 0.8em;
+}
+
+.shopee-fees-detail {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.shopee-fee-detail {
+  display: block;
+  margin-bottom: 10px;
+  color: #666;
+}
+
+.profit-text-bold {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.divider {
+  border: none;
+  height: 1px;
+  background-color: #c5c5c5;
+  margin: 10px 0;
+}
+
+.net-profit {
+  font-size: 1.1em;
+  color: #e8e8e8;
+}
+
+@media (max-width: 600px) {
+  .result-content {
+    flex-direction: column;
+  }
+  
+  .fee-section, 
+  .profit-section {
+    width: 100%;
+  }
+}
+
+/* 商品售價計算器標題 */
+.calculator-title {
+  color: #090909;
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+/* 調整容器間距 */
+.right-container .currency-live-rates-container {
+  margin-bottom: 10px;
+}
+
+/* 保持表單元素的統一樣式 */
+.form-select {
+  font-size: 16px;
+  border-radius: 8px;
+  color: #090909;
+  background: #e8e8e8;
+  padding: 10px;
+  border: none;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.form-input {
+  font-size: 16px;
+  border-radius: 8px;
+  color: #090909;
+  background: #e8e8e8;
+  padding: 10px;
+  border: none;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+.form-select:hover,
+.form-input:hover {
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+}
+
+.calculate-button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #e8e8e8;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+/* 統一按鈕樣式 */
+.currency-calculate-button,
+.currency-refresh-button,
+.currency-primary-button,
+.calculate-button,
+.tab-button {
+  background: #e8e8e8;
+  color: #090909;
+  font-weight: bold;
+  margin-top: 10px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.currency-calculate-button:hover,
+.currency-refresh-button:hover,
+.currency-primary-button:hover,
+.calculate-button:hover,
+.tab-button:hover {
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  color: #666;
+}
+
+/* 重寫綠色按鈕樣式 */
+.currency-calculate-button.green,
+.currency-primary-button.green,
+.calculate-button.green,
+.tab-button.active {
+  background: #e8e8e8;
+  box-shadow: inset 4px 4px 12px #c5c5c5, inset -4px -4px 12px #ffffff;
+  color: #666;
+}
+
+.currency-calculate-button.green:hover,
+.currency-primary-button.green:hover,
+.calculate-button.green:hover,
+.tab-button.active:hover {
+  background: #e8e8e8;
+  box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.1), inset -4px -4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* 紅色按鈕樣式 */
+.currency-danger-button {
+  background: #ff4444;
+  color: white;
+  font-weight: bold;
+  margin-top: 10px;
+  box-shadow: 6px 6px 12px #c5c5c5, -6px -6px 12px #ffffff;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 20%;
+}
+
+.currency-danger-button:hover {
+  background: #e53935;
+  box-shadow: inset 4px 4px 12px rgba(0, 0, 0, 0.1), inset -4px -4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* 移除舊的按鈕獨立樣式，保留重寫的特殊屬性 */
+.currency-calculate-button {
+  margin-bottom: 10px;
+}
+
+.currency-refresh-button {
+  margin-top: 20px;
+}
+
+.tab-button {
+  flex: 1;
+  margin-top: 0;
+}
+
+.currency-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* 小型按鈕樣式 */
+.currency-select-button,
+.currency-update-button {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-right: 5px;
+  background: #e8e8e8;
+  color: #090909;
+  box-shadow: 3px 3px 6px #c5c5c5, -3px -3px 6px #ffffff;
+}
+
+.currency-select-button:hover,
+.currency-update-button:hover {
+  box-shadow: inset 2px 2px 6px #c5c5c5, inset -2px -2px 6px #ffffff;
+  color: #666;
+}
+
+/* 確保貨幣圖標在選單中顯示正確 */
+.currency-option .currency-icon {
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  display: inline-block;
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+/* 移除內聯樣式 */
+.currency-form-select.hidden {
+  display: none;
+}
+
+.currency-new-inputs.hidden {
+  display: none;
+}
+
+.currency-delete-button.hidden {
+  display: none;
+}
+
+.shopee-options.hidden {
+  display: none;
+}
+
+.currency-result-text {
+  text-align: center;
+}
+
+/* 空貨幣列表提示文字置中 */
+.currency-list-empty {
+  text-align: center;
+} 
